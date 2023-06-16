@@ -1,0 +1,37 @@
+<%- include('partials/header') %> <!-- Include the header partial -->
+<script>
+  // Check if there is a success query parameter in the URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const alertType = urlParams.get('alert');
+
+  // Display an alert if the query parameter is "success"
+  if (alertType === 'success') {
+    alert('Product deleted successfully');
+  }if (alertType === 'signinsuccess') {
+    alert('signed in successfully');
+  }if (alertType === 'signinfailed') {
+    alert('signing in failed');
+  }
+</script>
+
+<main class="container mt-4">
+  <h2>Home Page</h2>
+  <p>Explore our wide range of products!</p>
+  <div class="row">
+    <% products.forEach((product) => { %>
+      <div class="col-md-4 mb-4">
+        <a href="/products/<%= product.id %>" class="card-link">
+          <div class="card">
+            <img src="<%= product.imageUrl %>" class="card-img-top" alt="<%= product.name %>">
+            <div class="card-body">
+              <h5 class="card-title"><%= product.name %></h5>
+              <p class="card-text">Price: $<%= product.price.toFixed(2) %></p>
+            </div>
+          </div>
+        </a>
+      </div>
+    <% }) %>
+  </div>
+</main>
+
+<%- include('partials/footer') %>

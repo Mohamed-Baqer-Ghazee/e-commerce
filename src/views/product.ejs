@@ -1,0 +1,59 @@
+<%- include('partials/header') %>
+<script>
+    const addToCartForm = document.getElementById('addToCartForm');
+    addToCartForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+  
+      const formData = new FormData(addToCartForm);
+      const productId = formData.get('productId');
+  
+      try {
+        const response = await fetch('/cart/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ productId }),
+        });
+  
+        if (response.ok) {
+          const data = await response.json();
+          alert(data.message);
+        } else {
+          alert('Failed to add product to cart');
+        }
+      } catch (error) {
+        console.error(error);
+        alert('An error occurred');
+      }
+    });
+  </script>
+  
+<main class="container mt-4">
+  <div class="card">
+    <img src="<%= product.imageUrl %>" class="card-img-top quarter-screen-img" alt="<%= product.name %>">
+    <div class="card-body">
+      <h5 class="card-title"><%= product.name %></h5>
+      <p class="card-text">ID: <%= product.id %></p>
+      <p class="card-text">Price: $<%= product.price.toFixed(2) %></p>
+      <p class="card-text">Description: <%= product.description %></p>
+      <!-- Add any other product details here -->
+      
+      <form action="/products/<%= product.id %>" method="POST">
+        <button type="submit" class="btn btn-danger">Delete</button>
+      </form>
+      <form action="/addtocart/<%= product.id %>" method="POST">
+        <button type="submit" class="btn btn-danger">Add to cart</button>
+      </form>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer') %>
+
+<style>
+  .quarter-screen-img {
+    width: 25vw;
+    height: auto;
+  }
+</style>

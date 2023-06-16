@@ -1,0 +1,24 @@
+<%- include('partials/header') %>
+
+<main>
+  <div class="container">
+    <h2>Add Product</h2>
+    <form method="POST" action="/addproduct" class="mt-4">
+      <div class="mb-3">
+        <label for="name" class="form-label">Product Name:</label>
+        <input type="text" id="name" name="name" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label for="price" class="form-label">Price:</label>
+        <input type="number" id="price" name="price" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label for="imageUrl" class="form-label">Image Url:</label>
+        <input type="text" id="imageUrl" name="imageUrl" class="form-control" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Add Product</button>
+    </form>
+  </div>
+</main>
+
+<%- include('partials/footer') %>

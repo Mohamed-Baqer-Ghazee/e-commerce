@@ -1,0 +1,21 @@
+<!-- users.ejs -->
+
+<%- include('partials/header') %> <!-- Include the header partial -->
+
+<div class="container">
+  <h1>Users</h1>
+  <% if (users.length === 0) { %>
+    <p>No users found.</p>
+  <% } else { %>
+    <ul class="list-group">
+      <% users.forEach((user) => { %>
+        <li class="list-group-item">
+          <h3><%= user.name %></h3>
+          <p>Email: <%= user.email %></p>
+        </li>
+      <% }); %>
+    </ul>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %> <!-- Include the footer partial -->
