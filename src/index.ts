@@ -2,21 +2,19 @@ import express, { NextFunction, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import path from 'path';
 import jwt from 'jsonwebtoken'
-import bodyParser from 'body-parser' 
 import helmet from 'helmet'
 import  rateLimit from 'express-rate-limit'
 import errorHnadler from './middleWares/error-handler';
 import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
 import routes from './routes'
-
-const app = express();
-dotenv.config();
-
-app.use('/api',routes);
-const prisma = new PrismaClient();
+import bodyParser from 'body-parser'
 const port = process.env.port;
 const secretKey = process.env.TOKEN_SECRET;
+
+const app = express();
+const prisma = new PrismaClient();
+dotenv.config();
 
 const limiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
@@ -30,12 +28,13 @@ const hashPassword = (password: string)=> {
   return bcrypt.hashSync(`${password}${process.env.BCRYPT_PASSWORD}`,salt)
 }
 
-app.use(express.json());
+app.use('/api',routes);
+app.use(bodyParser.json())
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
+
 app.use(helmet());
 app.use(limiter);
 app.use(errorHnadler);
@@ -49,38 +48,10 @@ app.get('/', async (req: Request, res: Response) => {
   }
 });
 
-// app.get("/users",async (req,res)=>{
-//   const users = await prisma.user.findMany();
-//   console.log(users);
-  
-//   res.send(users);
-// })
 app.get("/signup",(req,res)=>{
   res.render('signup');
 })
 
-
-// app.post("/signup", async (req, res) => {
-//   const { name, email, password } = req.body;
-//   try {
-//     const user = await prisma.user.create({
-//       data: {
-//         name,
-//         email,
-//         password: hashPassword(password),
-//       },
-//     });
-
-//     console.log(user);
-//     // const token = jwt.sign({ userId: user.id }, secretKey, { algorithm: 'HS256' });
-
-//     // res.json({ token });
-//     res.redirect("/");
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ error: 'Internal server error' });
-//   }
-// });
 
 app.get("/signin",(req,res)=>{
   res.render('signin');

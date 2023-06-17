@@ -1,18 +1,5 @@
 <%- include('partials/header') %> <!-- Include the header partial -->
-<script>
-  // Check if there is a success query parameter in the URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const alertType = urlParams.get('alert');
 
-  // Display an alert if the query parameter is "success"
-  if (alertType === 'success') {
-    alert('Product deleted successfully');
-  }if (alertType === 'signinsuccess') {
-    alert('signed in successfully');
-  }if (alertType === 'signinfailed') {
-    alert('signing in failed');
-  }
-</script>
 
 <main class="container mt-4">
   <h2>Home Page</h2>
@@ -33,5 +20,18 @@
     <% }) %>
   </div>
 </main>
+<script>
+  // Check if there is a success query parameter in the URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const alertType = urlParams.get('alert');
 
+  // Display an alert if the query parameter is "success"
+  if (alertType === 'success') {
+    alert('Product deleted successfully');
+  }if (alertType === 'signinsuccess') {
+    alert('signed in successfully');
+  }if (alertType === 'signinfailed') {
+    alert('signing in failed');
+  }
+</script>
 <%- include('partials/footer') %>

@@ -1,9 +1,18 @@
 import UserModel from "../models/user.model";
-import {Request,Response, NextFunction } from "express";
+import express,{ Router , Request,Response, NextFunction } from "express";
+import jwt from 'jsonwebtoken'
+import bodyParser  from 'body-parser'
+import dotenv from 'dotenv'
+dotenv.config();
 
+const app=express();
 const userModel = new UserModel();
+app.use(bodyParser.json())
+app.use(express.urlencoded({ extended: true }));
 
 export const createUser = async (req:Request, res: Response, next : NextFunction)=>{
+    console.log(req.body);
+    
     try{
         const user = await userModel.create(req);
         res.redirect('/');
@@ -45,3 +54,18 @@ export const updateUser = async (req:Request, res: Response, next : NextFunction
         next(error);
     }
 };
+export const authenticate=async (req: Request, res: Response, next: NextFunction) => {
+    try{
+        const {email, password}= req.body;
+        const user = await userModel.authenticate(email,password);
+        const token =jwt.sign({user}, process.env.token_secret as unknown as string);
+        if(!user){
+            return res.render("failed");
+        }
+        
+        res.redirect('/?alert=signinsuccess');
+
+    }catch(error){
+        next(error)
+    }
+}

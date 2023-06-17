@@ -2,18 +2,18 @@ import express,{ Router , Request,Response } from "express";
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
-import bodyParser from 'body-parser'
-const prisma = new PrismaClient();
 dotenv.config();
 
 const app=express();
-app.use(bodyParser.json()) // for parsing application/json
-app.use(bodyParser.urlencoded({ extended: true }))
+const prisma = new PrismaClient();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const hashPassword = (password: string)=> {
     const salt = parseInt(process.env.SALT as string,10);
     return bcrypt.hashSync(`${password}${process.env.BCRYPT_PASSWORD}`,salt)
   }
+
 class UserModel{
 
     async create(req: Request){
@@ -82,6 +82,31 @@ class UserModel{
             return user;
         } catch(error){
             throw new Error(`Error deleting the user ${(error as Error).message}`);
+        }
+    }
+    async authenticate(email: string, password: string){
+        
+        try{
+            const user= await prisma.user.findUnique({
+                where:{
+                    email:email
+                },
+            });
+            if(user){
+            const hashpass= user.password;
+            const isPassword = bcrypt.compareSync(
+                `${password}${process.env.bcrypt_password}`,
+                hashpass
+            )
+            if(isPassword){
+                return user;
+            }
+            }
+            
+            return null;
+
+        }catch(error){
+            throw new Error(`Unable to login: ${(error as Error).message}`);
         }
     }
 }
