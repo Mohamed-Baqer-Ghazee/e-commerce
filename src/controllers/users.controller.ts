@@ -59,11 +59,17 @@ export const authenticate=async (req: Request, res: Response, next: NextFunction
         const {email, password}= req.body;
         const user = await userModel.authenticate(email,password);
         const token =jwt.sign({user}, process.env.token_secret as unknown as string);
+        console.log(token);
+        
         if(!user){
             return res.render("failed");
         }
         
-        res.redirect('/?alert=signinsuccess');
+        return res.json({
+            status: 'success',
+            data:{...user,token},
+            message: 'user authenticated successfully',
+        })
 
     }catch(error){
         next(error)

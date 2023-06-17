@@ -44,7 +44,7 @@ app.get('/', async (req: Request, res: Response) => {
     const products = await prisma.product.findMany();
     res.render('home', { products });
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    throw new Error(`Unable to load products: ${(error as Error).message}`)
   }
 });
 
@@ -57,30 +57,6 @@ app.get("/signin",(req,res)=>{
   res.render('signin');
 })
 
-app.post("/signin",async (req,res)=>{
-  const { email, password}= req.body;
-  console.log(req.body);
-  
-  try{
-    const user =await prisma.user.findUnique({
-      where:{
-        email:email
-        }
-      
-    })
-    if(user?.password === password)
-      res.redirect('/?alert=signinsuccess');
-    
-    else
-      res.redirect('/?alert=signinfailed');
-  }
-  catch (error){
-    console.log(error);
-    
-    res.status(500).json({ error: 'Internal server error' });
-
-  }
-})
 
 app.get("/addproduct",(req,res)=>{
   res.render("addProduct.ejs");

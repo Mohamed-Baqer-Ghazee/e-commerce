@@ -1,6 +1,7 @@
 import express,{ Router , Request,Response } from "express";
 import * as controllers from '../../controllers/users.controller'
 import multer from 'multer'
+import authenticationMiddleware from '../../middleWares/authentication.middleware'
 const router =  Router();
 var bodyParser = require('body-parser')
 
@@ -11,7 +12,7 @@ router.use(bodyParser.urlencoded({ extended: true }));
 router.use(upload.none());
 
 router.route('/')
-    .get(controllers.getAllUsers)
+    .get(authenticationMiddleware, controllers.getAllUsers)
     .post(controllers.createUser);
 
 router.route('/:id')

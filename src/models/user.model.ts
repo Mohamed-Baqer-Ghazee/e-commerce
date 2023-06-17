@@ -39,7 +39,7 @@ class UserModel{
     }
     async getAllUsers(){
         try{
-            const users = prisma.user.findMany();
+            const users = await prisma.user.findMany();
             return users;
         } catch(error){
             throw new Error(`Error when retrieving users ${(error as Error).message}`);
@@ -48,12 +48,14 @@ class UserModel{
     async getUserById(req: Request){
         try{
             const id= req.body.id;
-            const user = prisma.user.findFirst({
+            const user = await prisma.user.findFirst({
                 where:{
                     id:id
                 }
             });
+            console.log(user)
             return user;
+
         } catch(error){
             throw new Error(`Error retrieving the user ${(error as Error).message}`);
         }
@@ -61,7 +63,7 @@ class UserModel{
     async updateUser(req: Request){
         try{
             const id= req.body.id;
-            const user = prisma.user.findFirst({
+            const user = await prisma.user.findFirst({
                 where:{
                     id:id
                 }
@@ -74,7 +76,7 @@ class UserModel{
     async deleteUser(req: Request){
         try{
             const id= req.body.id;
-            const user = prisma.user.delete({
+            const user = await prisma.user.delete({
                 where:{
                     id:id
                 }
@@ -93,10 +95,11 @@ class UserModel{
                 },
             });
             if(user){
-            const hashpass= user.password;
+
+            const {password:hashPassword}= user;
             const isPassword = bcrypt.compareSync(
                 `${password}${process.env.bcrypt_password}`,
-                hashpass
+                hashPassword
             )
             if(isPassword){
                 return user;
