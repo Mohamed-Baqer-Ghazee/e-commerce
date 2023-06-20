@@ -2,9 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 
   const errorHnadler = (err: Error, req: Request, res: Response, next: NextFunction) =>{
     console.error(err); // Log the error for debugging purposes
-
     // Handle specific error types
-    if (err.name === 'ValidationError') {
+    
+    if (err.name === 'noAuth') {
       return res.status(400).json({ error: err.message });
     }
 

@@ -1,9 +1,10 @@
 import express,{ Router , Request,Response } from "express";
 import * as controllers from '../../controllers/users.controller'
 import multer from 'multer'
+import bodyParser from 'body-parser'
 import authenticationMiddleware from '../../middleWares/authentication.middleware'
+
 const router =  Router();
-var bodyParser = require('body-parser')
 
 // Configure multer to handle form data
 const upload = multer();
@@ -13,13 +14,16 @@ router.use(upload.none());
 
 router.route('/')
     .get(authenticationMiddleware, controllers.getAllUsers)
-    .post(controllers.createUser);
+    .post(controllers.signUp)
+    .delete(controllers.signOut);
 
 router.route('/:id')
     .get(controllers.getUserById)
     .patch(controllers.updateUser)
     .delete(controllers.deleteUser);
 
-router.route('/authenticate').post(controllers.authenticate);
+router.route('/signin').post(controllers.signIn);
+
+
 
 export default router;

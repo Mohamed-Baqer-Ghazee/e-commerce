@@ -1,14 +1,15 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import path from 'path';
-import jwt from 'jsonwebtoken'
 import helmet from 'helmet'
-import  rateLimit from 'express-rate-limit'
 import errorHnadler from './middleWares/error-handler';
 import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
 import routes from './routes'
 import bodyParser from 'body-parser'
+import passport from 'passport';
+import limiter from './config/limiterConfig'
+
 const port = process.env.port;
 const secretKey = process.env.TOKEN_SECRET;
 
@@ -16,18 +17,8 @@ const app = express();
 const prisma = new PrismaClient();
 dotenv.config();
 
-const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-})
 
-const hashPassword = (password: string)=> {
-  const salt = parseInt(process.env.SALT as string,10);
-  return bcrypt.hashSync(`${password}${process.env.BCRYPT_PASSWORD}`,salt)
-}
-
+app.use(passport.initialize());
 app.use('/api',routes);
 app.use(bodyParser.json())
 // parse requests of content-type - application/x-www-form-urlencoded
@@ -38,6 +29,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(helmet());
 app.use(limiter);
 app.use(errorHnadler);
+
 
 app.get('/', async (req: Request, res: Response) => {
   try {
@@ -61,6 +53,8 @@ app.get("/signin",(req,res)=>{
 app.get("/addproduct",(req,res)=>{
   res.render("addProduct.ejs");
 })
+
+
 
 // Add a new product
 app.post('/addproduct', async (req, res) => {
@@ -141,6 +135,7 @@ app.use((err: any, req: Request, res: Response) => {
   console.error(err);
   res.status(500).json({ error: 'Internal server error' });
 });
+
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
