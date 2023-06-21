@@ -1,21 +1,19 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import express, { NextFunction, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import path from 'path';
-import helmet from 'helmet'
+import helmet from 'helmet';
 import errorHnadler from './middleWares/error-handler';
-import bcrypt from 'bcrypt'
-import dotenv from 'dotenv'
-import routes from './routes'
-import bodyParser from 'body-parser'
+import routes from './routes';
+import bodyParser from 'body-parser';
 import passport from 'passport';
-import limiter from './config/limiterConfig'
+import limiter from './config/limiterConfig';
+import './config/passportConfig';
 
-const port = process.env.port;
-const secretKey = process.env.TOKEN_SECRET;
 
 const app = express();
 const prisma = new PrismaClient();
-dotenv.config();
 
 
 app.use(passport.initialize());
@@ -137,6 +135,7 @@ app.use((err: any, req: Request, res: Response) => {
 });
 
 
+const port = process.env.port;
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
