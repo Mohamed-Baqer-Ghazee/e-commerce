@@ -5,6 +5,7 @@ import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
 dotenv.config();
 
+import cookieParser from 'cookie-parser';
 
 import passport from "passport";
 const LocalStrategy = require('passport-local').Strategy;
@@ -14,20 +15,24 @@ const app = express();
 const userModel = new UserModel();
 app.use(bodyParser.json())
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
 export const signUp = async (req: Request, res: Response, next: NextFunction) => {
     // console.log(req.body);
 
     try {
         const user = await userModel.signUp(req);
         const token = jwt.sign({ user }, process.env.token_secret as unknown as string, { expiresIn: maxAge });
-        // console.log(token);
-        const userId = user.id;
-        // res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
-        return res.json({
-            status: 'success',
-            data: { userId: userId, token },
-            message: 'user authenticated successfully',
-        })
+        console.log(token);
+        res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
+        res.redirect('/');
+
+        // const userId = user.id;
+        // return res.json({
+        //     status: 'success',
+        //     data: { userId: userId, token },
+        //     message: 'user authenticated successfully',
+        // })
         
     } catch (error) {
         next(error);
@@ -79,14 +84,16 @@ export const signIn = async (req: Request, res: Response, next: NextFunction) =>
         }
 
         const token = jwt.sign({ user }, process.env.token_secret as unknown as string, { expiresIn: maxAge });
-        // console.log(token);
-        const userId = user.id;
-        // res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
-        return res.json({
-            status: 'success',
-            data: { userId: userId, token },
-            message: 'user authenticated successfully',
-        })
+        console.log(token);
+        res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
+        res.redirect('/');
+
+        // const userId = user.id;
+        // return res.json({
+        //     status: 'success',
+        //     data: { userId: userId, token },
+        //     message: 'user authenticated successfully',
+        // })
 
     } catch (error) {
         next(error)
@@ -94,12 +101,16 @@ export const signIn = async (req: Request, res: Response, next: NextFunction) =>
 }
 export const signOut = async (req: Request, res: Response, next: NextFunction) => {
     try {
+
         
-        return res.json({
-            status: 'success',
-            data: { userId: '', token:'' },
-            message: 'user signed Out successfully',
-        })
+        res.cookie('jwt', '', { httpOnly: true, maxAge:1 });
+        res.redirect('/');
+        
+        // return res.json({
+        //     status: 'success',
+        //     data: { userId: '', token:'' },
+        //     message: 'user signed Out successfully',
+        // })
 
     } catch (error) {
         next(error)

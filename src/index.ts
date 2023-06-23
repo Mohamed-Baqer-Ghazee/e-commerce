@@ -10,7 +10,7 @@ import bodyParser from 'body-parser';
 import passport from 'passport';
 import limiter from './config/limiterConfig';
 import './config/passportConfig';
-
+import cookieParser from 'cookie-parser';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -23,7 +23,7 @@ app.use(bodyParser.json())
 app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
+app.use(cookieParser());
 app.use(helmet());
 app.use(limiter);
 app.use(errorHnadler);
