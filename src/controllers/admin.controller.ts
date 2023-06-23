@@ -39,6 +39,24 @@ export const signUp = async (req: Request, res: Response, next: NextFunction) =>
         next(error);
     }
 };
+export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = await userModel.deleteUser(req);
+        res.redirect('/');
+    } catch (error) {
+        next(error);
+    }
+};
+export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const users = await userModel.getAllUsers();
+        // console.log(users);
+
+        res.render("users", { users });
+    } catch (error) {
+        next(error);
+    }
+};
 export const getSignedUser = async (req: Request, res: Response, next: NextFunction) => {
     
     try {
@@ -63,6 +81,20 @@ export const getSignedUser = async (req: Request, res: Response, next: NextFunct
         next(error);
     }
 };
+export const getUserById = async (req: Request, res: Response, next: NextFunction) => {
+    
+    try {
+        const user = await userModel.getUserById(req);
+        console.log(user);
+        if(!user)
+            res.send("no user found")
+        else res.render("user", { user });
+       
+        
+    } catch (error) {
+        next(error);
+    }
+};
 export const updateUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = await userModel.updateUser(req);
@@ -76,27 +108,16 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
 const maxAge =  30 * 24 * 60 * 60;
 export const signIn = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        if(req.isAuthenticated())
-            {
-                console.log("signed");
-                
-                res.send('user already signed in ');
-            }
-            else{
-                console.log("not");
-                const { email, password } = req.body;
-            const user = await userModel.signIn(email, password);
-            if (!user) {
-                return res.render("failed");
-            }
-    
-            const token = jwt.sign({ user }, process.env.token_secret as unknown as string, { expiresIn: maxAge });
-            console.log(token);
-            res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
-            res.redirect('/');
+        const { email, password } = req.body;
+        const user = await userModel.signIn(email, password);
+        if (!user) {
+            return res.render("failed");
+        }
 
-            }
-        
+        const token = jwt.sign({ user }, process.env.token_secret as unknown as string, { expiresIn: maxAge });
+        console.log(token);
+        res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
+        res.redirect('/');
 
         // const userId = user.id;
         // return res.json({

@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import express, { NextFunction, Request, Response } from 'express';
+import express, {  Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import path from 'path';
 import helmet from 'helmet';
@@ -11,11 +11,13 @@ import passport from 'passport';
 import limiter from './config/limiterConfig';
 import './config/passportConfig';
 import cookieParser from 'cookie-parser';
+const JwtStrategy = require('passport-jwt').Strategy;
+import './middleWares/passportAuth.middleware';
 
 const app = express();
 const prisma = new PrismaClient();
 
-
+passport.use(JwtStrategy);
 app.use(passport.initialize());
 app.use('/api',routes);
 app.use(bodyParser.json())
@@ -38,7 +40,8 @@ app.get('/', async (req: Request, res: Response) => {
   }
 });
 
-app.get("/signup",(req,res)=>{
+/// Need to check beheiver ///////////////////////////////////////////////////////////////////////////////////////////////
+app.get("/signup",passport.authenticate('jwt',{session:false}),(req,res)=>{
   res.render('signup');
 })
 
@@ -52,7 +55,9 @@ app.get("/addproduct",(req,res)=>{
   res.render("addProduct.ejs");
 })
 
-
+app.get('/auth',passport.authenticate('jwt',{session:false}),(req,res)=>{
+  res.send("fffffffffffff");
+});
 
 // Add a new product
 app.post('/addproduct', async (req, res) => {

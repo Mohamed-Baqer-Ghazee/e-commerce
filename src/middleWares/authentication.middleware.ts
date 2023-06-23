@@ -2,9 +2,8 @@ import express, { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import Error from '../interfaces/error.interface'
 import dotenv from 'dotenv'
-import passport from "passport";
 import cookieParser from 'cookie-parser';
-const LocalStrategy = require('passport-local').Strategy;
+
 dotenv.config();
 const app = express();
 app.use(cookieParser());

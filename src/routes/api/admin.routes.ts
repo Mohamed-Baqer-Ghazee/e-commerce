@@ -1,11 +1,9 @@
-import { Router } from "express";
-import * as controllers from '../../controllers/users.controller'
+import { Router} from "express";
+import * as controllers from '../../controllers/admin.controller'
 import multer from 'multer'
 import bodyParser from 'body-parser'
-
 import passport from 'passport';
 const JwtStrategy = require('passport-jwt').Strategy;
-
 import cookieParser from 'cookie-parser';
 const router =  Router();
 
@@ -23,12 +21,14 @@ router.use(passport.initialize());
 const authenticate = passport.authenticate('jwt', { session: false });
 
 router.route('/')
-    .get(authenticate, controllers.getSignedUser)
+    .get(authenticate, controllers.getAllUsers)
     .post(controllers.signIn)
-    .patch(authenticate, controllers.updateUser)
-    .delete(authenticate, controllers.signOut);
+    .delete(authenticate,controllers.signOut);
+router.route('/:id')
+    .get(authenticate,controllers.getUserById)
+    .patch(authenticate,controllers.updateUser)
+    .delete(authenticate,controllers.deleteUser);
 
-router.route('/signUp').post(controllers.signUp);
 
 
 

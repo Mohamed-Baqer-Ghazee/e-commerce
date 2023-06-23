@@ -1,10 +1,9 @@
-import express,{ Router , Request,Response } from "express";
+import { Router } from "express";
 import usersRoutes from './api/users.routes';
-import authRoutes from './api/auth.routes';
+import adminRoutes from './api/admin.routes';
 
 const router =  Router();
 
 router.use('/users',usersRoutes);
-router.use('/auth',authRoutes);
-
+router.use('/admin',adminRoutes);
 export default router;
