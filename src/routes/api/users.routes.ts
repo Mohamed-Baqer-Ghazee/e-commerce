@@ -2,11 +2,10 @@ import { Router } from "express";
 import * as controllers from '../../controllers/users.controller'
 import multer from 'multer'
 import bodyParser from 'body-parser'
-
 import passport from 'passport';
+import cookieParser from 'cookie-parser';
 const JwtStrategy = require('passport-jwt').Strategy;
 
-import cookieParser from 'cookie-parser';
 const router =  Router();
 
 // Configure multer to handle form data
@@ -25,7 +24,7 @@ const authenticate = passport.authenticate('jwt', { session: false });
 router.route('/')
     .get(authenticate, controllers.getSignedUser)
     .post(controllers.signIn)
-    .patch(authenticate, controllers.updateUser)
+    .patch(authenticate, controllers.updateCurrentUser)
     .delete(authenticate, controllers.signOut);
 
 router.route('/signUp').post(controllers.signUp);

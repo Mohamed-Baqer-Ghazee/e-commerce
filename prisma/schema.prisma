@@ -9,67 +9,66 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-// filename: schema.prisma
-
-// Define the data model for your e-commerce application
 
 // Define the User model
 model User {
-  id          String        @id @default(uuid())
-  name        String
-  email       String     @unique
-  password    String
-  role        Role       @default(USER)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  carts       Cart?
-  products    Product[] 
-  orders       Order[]
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  role      Role      @default(USER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  carts     Cart?
+  products  Product[]
+  orders    Order[]
 }
 
 // Define the Product model
 model Product {
-  id           String      @id @default(uuid())
-  user         User        @relation(fields: [userId], references: [id])
-  userId       String      
-  name         String
-  description  String?
-  price        Float
-  imageUrl     String
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  carts        Cart[]
-  categories   Category[]
+  id          String     @id @default(uuid())
+  user        User       @relation(fields: [userId], references: [id])
+  userId      String
+  name        String
+  description String?
+  price       Float
+  imageUrl    String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  carts       Cart[]
+  categories  Category[]
 }
 
 // Define the Cart model
 model Cart {
-  id        String        @id @default(uuid())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String      @unique
-  product   Product[]  
-  quantity  Int      @default(1)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String    @id @default(uuid())
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String    @unique
+  product   Product[]
+  quantity  Int       @default(1)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 // Define the Category model
-model Category{
-  id       String        @id @default(uuid())
-  name     String       @unique
+model Category {
+  id       String    @id @default(uuid())
+  name     String    @unique
   products Product[]
 }
 
-model Order{
-  id   String        @id @default(uuid())
+// Define the Order model
+model Order {
+  id        String   @id @default(uuid())
   user      User     @relation(fields: [userId], references: [id])
-  userId    String      @unique
-  payment   Float  
+  userId    String   @unique
+  payment   Float
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 }
 
-enum Role{
+// Define the Roles
+enum Role {
   USER
   SELLER
   ADMIN

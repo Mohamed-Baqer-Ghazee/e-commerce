@@ -17,7 +17,6 @@ const hashPassword = (password: string) => {
 class UserModel {
 
     async signUp(req: Request) {
-        // console.log(req.body);
         const { name, email, password } = req.body;
 
         try {
@@ -28,10 +27,6 @@ class UserModel {
                     password: hashPassword(password),
                 },
             });
-
-            // console.log(user);
-            // const token = jwt.sign({ userId: user.id }, secretKey, { algorithm: 'HS256' });
-
             return user;
         } catch (error) {
             throw new Error(`Unable to create (${name}: ${(error as Error).message})`);
@@ -48,30 +43,62 @@ class UserModel {
     async getUserById(req: Request) {
         try {
             const id = req.params.id;
-            console.log(id);
-            
+
             const user = await prisma.user.findFirst({
                 where: {
                     id: id
                 }
             });
-            // console.log(user)
             return user;
 
         } catch (error) {
             throw new Error(`Error retrieving the user ${(error as Error).message}`);
         }
     }
-    async updateUser(req: Request) {
+    async updateUserById(req: Request) {
         try {
-            const id = req.params.id;
-            const user = await prisma.user.findFirst({
+            const { id, name, email } = req.body;
+            const user = await prisma.user.findUnique({
                 where: {
                     id: id
                 }
             });
-            console.log(user);
-            
+
+            return user;
+        } catch (error) {
+            throw new Error(`Error when updating users ${(error as Error).message}`);
+        }
+    }
+    async updateCurrentUser(id: string, req: Request) {
+        try {
+            const { name, email } = req.body;
+            const user = await prisma.user.update({
+                where: {
+                    id: id
+                },data:{
+                    name,
+                    email
+                }
+            });
+
+
+            return user;
+        } catch (error) {
+            throw new Error(`Error when updating users ${(error as Error).message}`);
+        }
+    }
+    async updateUserRole(req: Request) {
+        try {
+            const id = req.params.id;
+            const user = await prisma.user.update({
+                where: {
+                    id
+                },
+                data: {
+                    role: 'SELLER',
+                },
+            });
+
             return user;
         } catch (error) {
             throw new Error(`Error when updating users ${(error as Error).message}`);
@@ -79,15 +106,15 @@ class UserModel {
     }
     async deleteUser(req: Request) {
         try {
-            const id:string = req.params.id;
+            const id: string = req.params.id;
             console.log(id);
-            
+
             const user = await prisma.user.delete({
                 where: {
                     id: id
                 }
             });
-            if(!user)
+            if (!user)
                 throw new Error(`no user found with that id`);
             return user;
         } catch (error) {

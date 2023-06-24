@@ -1,6 +1,6 @@
 import UserModel from "../models/user.model";
 import express, { Request, Response, NextFunction } from "express";
-import jwt from 'jsonwebtoken'
+import jwt,{JwtPayload} from 'jsonwebtoken'
 import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
 dotenv.config();
@@ -19,40 +19,27 @@ passport.use(JwtStrategy);
 app.use(passport.initialize());
 
 
-export const signUp = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        
-        const user = await userModel.signUp(req);
-        const token = jwt.sign({ user }, process.env.token_secret as unknown as string, { expiresIn: maxAge });
-        console.log(token);
-        res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
-        res.redirect('/');
-
-        // const userId = user.id;
-        // return res.json({
-        //     status: 'success',
-        //     data: { userId: userId, token },
-        //     message: 'user authenticated successfully',
-        // })
-        
-    } catch (error) {
-        next(error);
-    }
-};
 export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user = await userModel.deleteUser(req);
-        res.redirect('/');
+        if(isAdmin(req,next)){
+            const user = await userModel.deleteUser(req);
+            res.redirect('/');
+    }else{
+        res.send("you're not an admin");
+    }
     } catch (error) {
         next(error);
     }
 };
 export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        if(isAdmin(req,next)){
         const users = await userModel.getAllUsers();
-        // console.log(users);
 
         res.render("users", { users });
+    }else{
+        res.send("you're not an admin");
+    }
     } catch (error) {
         next(error);
     }
@@ -70,37 +57,54 @@ export const getSignedUser = async (req: Request, res: Response, next: NextFunct
           return res.redirect('/login');
         }
         // Successful authentication
-            
         console.log("auth successful");
         res.render("user", { user });
-        // return res.redirect('/dashboard');
+
       })(req, res, next);
-        // const user = await userModel.getUserById(req);
-        // res.render("user", { user });
     } catch (error) {
         next(error);
     }
 };
 export const getUserById = async (req: Request, res: Response, next: NextFunction) => {
     
-    try {
+    try {if(isAdmin(req,next)){
         const user = await userModel.getUserById(req);
-        console.log(user);
         if(!user)
             res.send("no user found")
         else res.render("user", { user });
-       
-        
+    }else{
+        res.send("you're not an admin");
+    }
     } catch (error) {
         next(error);
     }
 };
-export const updateUser = async (req: Request, res: Response, next: NextFunction) => {
+export const updateUserById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user = await userModel.updateUser(req);
+        if(isAdmin(req,next)){
+        const user = await userModel.updateUserById(req);
         if(user)
             res.send(user.name);
         else res.send("no user found");
+    }else{
+        res.send("you're not an admin");
+
+    }
+    } catch (error) {
+        next(error);
+    }
+};
+export const updateUserRole = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        if(isAdmin(req,next)){
+            const user = await userModel.updateUserRole(req);
+            if(user)
+                res.send(user);
+            else res.send("no user found");
+
+        }else{
+            res.send("you're not an admin");
+        }
     } catch (error) {
         next(error);
     }
@@ -115,16 +119,8 @@ export const signIn = async (req: Request, res: Response, next: NextFunction) =>
         }
 
         const token = jwt.sign({ user }, process.env.token_secret as unknown as string, { expiresIn: maxAge });
-        console.log(token);
         res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
         res.redirect('/');
-
-        // const userId = user.id;
-        // return res.json({
-        //     status: 'success',
-        //     data: { userId: userId, token },
-        //     message: 'user authenticated successfully',
-        // })
 
     } catch (error) {
         next(error)
@@ -133,18 +129,31 @@ export const signIn = async (req: Request, res: Response, next: NextFunction) =>
 export const signOut = async (req: Request, res: Response, next: NextFunction) => {
     try {
 
-        console.log("sout");
+        console.log("signed out");
         
         res.cookie('jwt', '', { httpOnly: true, maxAge:1 });
         res.redirect('/');
-        
-        // return res.json({
-        //     status: 'success',
-        //     data: { userId: '', token:'' },
-        //     message: 'user signed Out successfully',
-        // })
 
     } catch (error) {
         next(error)
+    }
+}
+
+function isAdmin(req:Request,next:NextFunction){
+    
+    const token = req.cookies.jwt;
+    if (token) {
+        try {
+            const decodedToken = jwt.verify(token, process.env.token_secret as unknown as string) as JwtPayload;
+            
+            if(decodedToken.user.role === 'ADMIN')
+                return 1;
+            else return 0;
+          } catch (error) {
+            next(error);
+          }
+    }else{
+        return 0;
+
     }
 }

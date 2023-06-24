@@ -1,5 +1,5 @@
 import { Router } from "express";
-import * as controllers from '../../controllers/admin.controller'
+import * as controllers from '../../controllers/products.controller'
 import multer from 'multer'
 import bodyParser from 'body-parser'
 import passport from 'passport';
@@ -18,15 +18,13 @@ router.use(cookieParser());
 const authenticate = passport.authenticate('jwt', { session: false });
 
 router.route('/')
-    .get(authenticate, controllers.getAllUsers)
-    .post(controllers.signIn)
-    .delete(authenticate, controllers.signOut);
-router.route('/:id')
-    .get(authenticate, controllers.getUserById)
-    .put(authenticate, controllers.updateUserRole)
-    .patch(authenticate, controllers.updateUserById)
-    .delete(authenticate, controllers.deleteUser);
+    .get(controllers.getAllProducts)
+    .post(authenticate, controllers.createProduct);
 
-router.route('/profile').get(authenticate, controllers.getSignedUser);
+router.route('/:id')
+    .get(controllers.getProductById)
+    .patch(authenticate, controllers.updateProductById)
+    .delete(authenticate, controllers.deleteProductById);
+
 
 export default router;
