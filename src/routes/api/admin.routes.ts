@@ -19,8 +19,6 @@ const authenticate = passport.authenticate('jwt', { session: false });
 
 router.route('/')
     .get(authenticate, controllers.getAllUsers)
-    .post(controllers.signIn)
-    .delete(authenticate, controllers.signOut);
 router.route('/:id')
     .get(authenticate, controllers.getUserById)
     .put(authenticate, controllers.updateUserRole)

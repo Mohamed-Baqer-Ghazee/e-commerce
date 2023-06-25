@@ -109,35 +109,6 @@ export const updateUserRole = async (req: Request, res: Response, next: NextFunc
         next(error);
     }
 };
-const maxAge =  30 * 24 * 60 * 60;
-export const signIn = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { email, password } = req.body;
-        const user = await userModel.signIn(email, password);
-        if (!user) {
-            return res.render("failed");
-        }
-
-        const token = jwt.sign({ user }, process.env.token_secret as unknown as string, { expiresIn: maxAge });
-        res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
-        res.redirect('/');
-
-    } catch (error) {
-        next(error)
-    }
-}
-export const signOut = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-
-        console.log("signed out");
-        
-        res.cookie('jwt', '', { httpOnly: true, maxAge:1 });
-        res.redirect('/');
-
-    } catch (error) {
-        next(error)
-    }
-}
 
 function isAdmin(req:Request,next:NextFunction){
     

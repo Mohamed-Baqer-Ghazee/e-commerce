@@ -1,11 +1,6 @@
-<footer class="footer">
-    <div class="container">
-      <p>&copy; 2023 E-commerce Store. All rights reserved.</p>
-    </div>
-  </footer>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    function sendRequest(event) {
+
+    const signOutLink = document.getElementById('signout');
+    signOutLink.addEventListener('click', function(event) {
       event.preventDefault(); // Prevent the default anchor tag behavior
   
       fetch('/api/users', {
@@ -13,6 +8,7 @@
         // Additional options and headers if needed
       })
         .then(response => {
+          console.log(response);
           if(response.redirected)
              window.location.href = '/';
           // Handle the response
@@ -20,7 +16,4 @@
         .catch(error => {
           // Handle errors
         });
-    }
-  </script>
-</body>
-</html>
+    })

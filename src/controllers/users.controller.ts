@@ -93,14 +93,12 @@ export const updateCurrentUser = async (req: Request, res: Response, next: NextF
     try {
         const token = req.cookies.jwt;
         const decodedToken = jwt.verify(token, process.env.token_secret as unknown as string) as JwtPayload;
-        const oldEmail = decodedToken.user.email;
-        const userId= getUserId(req, next)
+        const oldUser = decodedToken.user;
+        const oldEmail = oldUser.email;
+        const userId= oldUser.id;
         if(userId){
             const user = await userModel.updateCurrentUser(userId, req);
-            console.log(user.email);
-            console.log(req.body.email);
-    
-            if (user && oldEmail !== user.email) {
+            if (user && oldEmail !== user.email ) {
                 console.log("changed email");
                 res.cookie("jwt", "", { httpOnly: true, maxAge: 1 });
                 res.redirect("/");
@@ -122,17 +120,13 @@ export const signIn = async (req: Request, res: Response, next: NextFunction) =>
             return;
         }
         else {
-            console.log("not");
             const { email, password } = req.body;
             const user = await userModel.signIn(email, password);
             if (!user) {
                 return res.render("failed");
             }
             sendToken(res, user);
-
         }
-
-
     } catch (error) {
         next(error)
     }
@@ -146,8 +140,8 @@ export const signOut = async (req: Request, res: Response, next: NextFunction) =
             res.redirect("/");
         }
         else {
-            console.log("already signed Up");
-            res.send("user already signed Up ");
+            console.log("user not signed in");
+            res.send("user not signed in");
 
         }
 

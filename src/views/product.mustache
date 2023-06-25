@@ -1,0 +1,42 @@
+{{> header}}
+
+<main class="container mt-4">
+  <div class="product-details">
+    <div class="product-image-container">
+      <img src="{{product.imageUrl}}" alt="{{product.name}}" class="product-image">
+    </div>
+    <h2>{{product.name}}</h2>
+    <p>Price: ${{product.price}}</p>
+    <p>{{product.description}}</p>
+    <a href="/cart/add/{{product.id}}" class="btn btn-primary">Add to Cart</a>
+    <button onclick="deleteProduct('{{product.id}}')" class="btn btn-danger">Delete</button>
+  </div>
+</main>
+
+<script>
+  function deleteProduct(productId) {
+    if (confirm("Are you sure you want to delete this product?")) {
+      fetch(`/product/${productId}/delete`, {
+        method: 'DELETE'
+      })
+      .then(response => {
+        if (response.ok) {
+          // Show a success message or perform any other actions
+          alert("Product deleted successfully!");
+          // Redirect to home page or any other desired page
+          window.location.href = "/";
+        } else {
+          // Show an error message or perform any other error handling
+          alert("Failed to delete product.");
+        }
+      })
+      .catch(error => {
+        // Show an error message or perform any other error handling
+        alert("Failed to delete product.");
+        console.error(error);
+      });
+    }
+  }
+</script>
+
+{{> footer}}

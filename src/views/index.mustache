@@ -1,0 +1,23 @@
+{{> header}}
+
+<main class="container mt-4">
+  <h2>Welcome to our E-Commerce Store!</h2>
+  <p>Check out our latest products:</p>
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    {{#products}}
+    <div class="col">
+      <a href="/products/{{id}}" class="text-decoration-none">
+        <div class="card h-100">
+          <img src="{{imageUrl}}" class="card-img-top" alt="{{name}}">
+          <div class="card-body">
+            <h5 class="card-title">{{name}}</h5>
+            <p class="card-text">Price: ${{price}}</p>
+          </div>
+        </div>
+      </a>
+    </div>
+    {{/products}}
+  </div>
+</main>
+
+{{> footer}}

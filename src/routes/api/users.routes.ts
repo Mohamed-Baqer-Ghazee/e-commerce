@@ -20,7 +20,7 @@ passport.use(JwtStrategy);
 router.use(passport.initialize());
 
 const authenticate = passport.authenticate('jwt', { session: false });
-
+const authenticateGoogle = passport.authenticate('jwt', { session: false });
 router.route('/')
     .get(authenticate, controllers.getSignedUser)
     .post(controllers.signIn)
@@ -28,7 +28,8 @@ router.route('/')
     .delete(authenticate, controllers.signOut);
 
 router.route('/signUp').post(controllers.signUp);
-
+router.route('/signup/google').get(authenticateGoogle,controllers.signUp);
+router.route('/signout').get(authenticate, controllers.signOut);
 
 
 export default router;

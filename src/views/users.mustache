@@ -1,0 +1,18 @@
+{{> header}} 
+
+<div class="container">
+  <h1>Users</h1>
+  {{#users}}
+    <ul class="list-group">
+      <li class="list-group-item">
+        <h3>{{name}}</h3>
+        <p>Email: {{email}}</p>
+      </li>
+    </ul>
+  {{/users}}
+  {{^users}}
+    <p>No users found.</p>
+  {{/users}}
+</div>
+
+{{> footer}} 

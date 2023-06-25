@@ -13,7 +13,8 @@ import './config/passportConfig';
 import cookieParser from 'cookie-parser';
 const JwtStrategy = require('passport-jwt').Strategy;
 import './middleWares/passportAuth.middleware';
-
+import mustacheExpress from 'mustache-express';
+// import mustache from 'mustache'
 const app = express();
 const prisma = new PrismaClient();
 
@@ -21,27 +22,38 @@ passport.use(JwtStrategy);
 app.use(passport.initialize());
 app.use('/api',routes);
 app.use(bodyParser.json())
-// parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+
+app.engine('mustache',mustacheExpress());
+app.set('view engine', 'mustache');
+const VIEWS_PATH = path.join(__dirname, '/views');
+app.set('views', VIEWS_PATH);
+app.engine('mustache', mustacheExpress(VIEWS_PATH + '/partials', '.mustache'));
 app.use(cookieParser());
-app.use(helmet());
 app.use(limiter);
 app.use(errorHnadler);
+app.use(helmet({ crossOriginEmbedderPolicy: false, originAgentCluster: true }));
+app.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: true,
+    directives: {
+      "img-src": ["'self'", "https: data: blob:"],
+    },
+  })
+);
 
 
 app.get('/', async (req: Request, res: Response) => {
   try {
     const products = await prisma.product.findMany();
-    res.render('home', { products });
+    res.render('index', { products });
   } catch (error) {
     throw new Error(`Unable to load products: ${(error as Error).message}`)
   }
 });
 
 /// Need to check beheiver ///////////////////////////////////////////////////////////////////////////////////////////////
-app.get("/signup",passport.authenticate('jwt',{session:false}),(req,res)=>{
+app.get("/signup",(req,res)=>{
   res.render('signup');
 })
 
@@ -52,10 +64,10 @@ app.get("/signin",(req,res)=>{
 
 
 app.get("/addproduct",(req,res)=>{
-  res.render("addProduct.ejs");
+  res.render("addProduct");
 })
 
-app.get('/auth',passport.authenticate('jwt',{session:false}),(req,res)=>{
+app.get('/auth',passport.authenticate('google',{session:false}),(req,res)=>{
   res.send("fffffffffffff");
 });
 
@@ -92,6 +104,8 @@ app.get('/products/:id', async (req: Request, res: Response) => {
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
+    console.log(product);
+    
 
     res.render('product', { product });
   } catch (error) {

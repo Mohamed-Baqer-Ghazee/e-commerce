@@ -130,11 +130,10 @@ class UserModel {
                 },
             });
             if (user) {
-
-                const { password: hashPassword } = user;
+                const { password: hashPassword} = user;
                 const isPassword = bcrypt.compareSync(
                     `${password}${process.env.bcrypt_password}`,
-                    hashPassword
+                    hashPassword as string
                 )
                 if (isPassword) {
                     return user;
