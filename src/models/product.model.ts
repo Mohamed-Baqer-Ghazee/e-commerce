@@ -13,8 +13,8 @@ class ProductModel {
 
     async createProduct(userId: string, req: Request) {
         try {
-            const { name, description, price : priceString, imageUrl } = req.body;
-            
+            const { name, description, price: priceString, imageUrl } = req.body;
+
             const price = parseFloat(priceString);
             const product = await prisma.product.create({
                 data: {
@@ -22,8 +22,8 @@ class ProductModel {
                     description,
                     price,
                     imageUrl,
-                    user:{
-                        connect:{id:userId}
+                    user: {
+                        connect: { id: userId }
                     }
                 },
             });
@@ -55,9 +55,9 @@ class ProductModel {
             throw new Error(`Error retrieving the product ${(error as Error).message}`);
         }
     }
-    async updateProductById(userId:string, req: Request) {
+    async updateProductById(userId: string, req: Request) {
         try {
-            const id= req.params.id;
+            const id = req.params.id;
             const { name, description, price: priceString, imageUrl } = req.body;
             const price = parseFloat(priceString);
             const product = await prisma.product.update({
@@ -71,7 +71,6 @@ class ProductModel {
 
                 }
             });
-
             return product;
         } catch (error) {
             throw new Error(`Error when updating products ${(error as Error).message}`);

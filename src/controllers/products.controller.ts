@@ -40,7 +40,7 @@ export const getAllProducts = async (req: Request, res: Response, next: NextFunc
     try {
         const products = await ProductModel.getAllProducts();
 
-        res.render("home", { products });
+        res.render("index", { products });
     
     } catch (error) {
         next(error);

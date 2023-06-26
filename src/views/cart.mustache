@@ -1,0 +1,20 @@
+{{> header}}
+
+<main class="container mt-4">
+  <h2>cart items</h2>
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    {{#products}}
+    <div class="col">
+        <div class="card h-100">
+          <img src="{{imageUrl}}" class="card-img-top" alt="{{name}}">
+          <div class="card-body">
+            <h5 class="card-title">{{name}}</h5>
+            <p class="card-text">Price: ${{price}}</p>
+          </div>
+        </div>
+    </div>
+    {{/products}}
+  </div>
+</main>
+
+{{> footer}}
