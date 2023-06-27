@@ -1,7 +1,7 @@
 import express, { Router, Request, Response } from "express";
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcrypt'
-import dotenv from 'dotenv'
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt"
+import dotenv from "dotenv"
 import { exitCode } from "process";
 dotenv.config();
 
@@ -15,7 +15,7 @@ class CartProductModel {
   async addProductToCart(cartId: string, productId: string) {
     try {
       const id = await this.getCartProductId(cartId,productId);
-      if(id !== '-1') {
+      if(id !== "-1") {
         const cartProduct = await prisma.cartProduct.update({
           where: { id }, data: {
             quantity: { increment: 1 }
@@ -80,7 +80,7 @@ class CartProductModel {
   async removeProductById(cartId: string, productId: string) {
     try {
       const id = await this.getCartProductId(cartId,productId);
-      if(id !== '-1') {
+      if(id !== "-1") {
         const cart = await prisma.cartProduct.findUnique({
           where: {
             id
@@ -106,15 +106,16 @@ class CartProductModel {
           },
         });
 
-        return newCartProduct;
-      } else {
-        
         return 0;
+      } else {
+        throw new Error(`no user cart with that id`);
       }
 
-
     } catch (error) {
-      throw new Error(`Error when removing product from cartProduct (${(error as Error).message})`);
+      const err = new Error(`Error when removing product from cartProduct (${(error as Error).message})`);
+      err.name="product doesn't exist in cart";
+      throw err;
+      // throw new Error(`Error when removing product from cartProduct (${(error as Error).message})`);
     }
   }
   
@@ -132,7 +133,7 @@ class CartProductModel {
         return cartProduct.id;
       }
       else{
-        return '-1';
+        return "-1";
       }
       }catch(error){
         throw new Error(`Error when finding cartProduct (${(error as Error).message})`);

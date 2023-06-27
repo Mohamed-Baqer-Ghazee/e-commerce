@@ -8,7 +8,10 @@ import { Request, Response, NextFunction } from 'express';
       return res.status(400).json({ error: err.message });
     }
     if(err.name ==="user already exists"){
-      return res.status(400).json({ error: "user already exists" });
+      return res.status(400).json({ error: err.name });
+    }
+    if(err.name ==="product doesn't exist in cart"){
+      return res.status(400).json({ error: err.name });
     }
 
 

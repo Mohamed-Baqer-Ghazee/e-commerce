@@ -1,14 +1,13 @@
 import cartModel from "../models/cart.model";
 import cartProductModel from "../models/cartProduct.model";
-import {findOrCreateCart} from "./cart.controller"
 import express, { Request, Response, NextFunction } from "express";
-import jwt, { JwtPayload } from 'jsonwebtoken'
-import bodyParser from 'body-parser'
-import dotenv from 'dotenv'
+import jwt, { JwtPayload } from "jsonwebtoken"
+import bodyParser from "body-parser"
+import dotenv from "dotenv"
 dotenv.config();
-import cookieParser from 'cookie-parser';
+import cookieParser from "cookie-parser";
 import passport from "passport";
-const JwtStrategy = require('passport-jwt').Strategy;
+const JwtStrategy = require("passport-jwt").Strategy;
 
 
 const app = express();
@@ -21,6 +20,34 @@ passport.use(JwtStrategy);
 app.use(passport.initialize());
 
 
+async function findOrCreateCart(req: Request, res: Response, next: NextFunction) {
+    try {
+        const userId = getUserId(req, next);
+        const productId = req.params.id;
+        // if the user is signed in 
+        if (userId) {
+            const cart = await CartModel.createCart(userId);
+            return cart;
+
+        } else {
+            const tempCartId = getCartId(req, next);
+            if(tempCartId){
+                const cart = await CartModel.getCartById(tempCartId);
+                return cart;
+
+            }else{
+                const tempCart = await CartModel.createCart("-1");
+                sendCartToken(res,next, tempCart);
+                return tempCart;
+
+            }
+        }
+
+    } catch (error) {
+        const err = new Error(`Unable to find or create cart (${(error as Error).message})`);
+        next(err);
+    }
+};
 export const addProductToCart = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const productId = req.params.id;

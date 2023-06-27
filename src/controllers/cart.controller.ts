@@ -1,12 +1,12 @@
 import cartModel from "../models/cart.model";
 import express, { Request, Response, NextFunction } from "express";
-import jwt, { JwtPayload } from 'jsonwebtoken'
-import bodyParser from 'body-parser'
-import dotenv from 'dotenv'
+import jwt, { JwtPayload } from "jsonwebtoken"
+import bodyParser from "body-parser"
+import dotenv from "dotenv"
 dotenv.config();
-import cookieParser from 'cookie-parser';
+import cookieParser from "cookie-parser";
 import passport from "passport";
-const JwtStrategy = require('passport-jwt').Strategy;
+const JwtStrategy = require("passport-jwt").Strategy;
 
 
 
@@ -18,53 +18,6 @@ app.use(cookieParser());
 passport.use(JwtStrategy);
 app.use(passport.initialize());
 
-
-export async function findOrCreateCart(req: Request, res: Response, next: NextFunction) {
-    try {
-        const userId = getUserId(req, next);
-        const productId = req.params.id;
-        // if the user is signed in 
-        if (userId) {
-            const cart = await CartModel.createCart(userId);
-            return cart;
-
-        } else {
-            const tempCartId = getCartId(req, next);
-            if(tempCartId){
-                const cart = await CartModel.getCartById(tempCartId);
-                return cart;
-
-            }else{
-                const tempCart = await CartModel.createCart(tempCartId);
-                sendCartToken(res,next, tempCart);
-                return tempCart;
-
-            }
-        }
-
-    } catch (error) {
-        const err = new Error(`Unable to find or create cart (${(error as Error).message})`);
-        next(err);
-    }
-};
-
-// export const addProductToCart = async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//         const productId = req.params.id;
-//         const cart = await findOrCreateCart(req, res, next);
-//         if (cart) {
-//             const cartId = cart.id;
-//             const newCart = CartModel.addProductToCart(cartId, productId);
-//             res.send("product added successfully");
-//         }else{
-//             res.send("something went wrong");
-
-//         }
-
-//     } catch (error) {
-//         next(error);
-//     }
-// };
 export const getAllCarts = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const carts = await CartModel.getAllCarts();
@@ -75,22 +28,6 @@ export const getAllCarts = async (req: Request, res: Response, next: NextFunctio
         next(error);
     }
 };
-// export const getCartProducts = async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-        
-//         const cart= await findOrCreateCart(req,res,next);
-//         if(cart){
-//             const cartId = cart.id;
-//             const products = await CartModel.getCartProducts(cartId);
-//             console.log(products);
-            
-//             res.render("index", { products });
-//         }
-
-//     } catch (error) {
-//         next(error);
-//     }
-// };
 export const getCartById = async (req: Request, res: Response, next: NextFunction) => {
 
     try {
@@ -103,25 +40,12 @@ export const getCartById = async (req: Request, res: Response, next: NextFunctio
         next(error);
     }
 };
-// export const removeProductById = async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//         const productId = req.params.id;
-//         const cart = await CartModel.removeProductById(getCartId(req, next),productId);
-
-//         if (cart)
-//             res.send(cart);
-//         else res.send("no product found");
-
-//     } catch (error) {
-//         next(error);
-//     }
-// };
 
 
 export const deleteCartById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const cart = await CartModel.deleteCartById(req);
-        res.redirect('/');
+        res.redirect("/");
 
     } catch (error) {
         next(error);
@@ -134,7 +58,6 @@ function sendCartToken(res: Response,next:NextFunction, cart: any) {
         const cartToken = jwt.sign({ cart }, process.env.token_secret as unknown as string, { expiresIn: maxAge });
         console.log(cartToken);
         res.cookie("jwtCart", cartToken, { httpOnly: true, maxAge: maxAge * 1000 });
-        res.redirect("/");
 
     } catch (error) {
         next(error);
