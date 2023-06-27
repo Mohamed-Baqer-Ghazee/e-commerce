@@ -2,6 +2,7 @@ import express, { Router, Request, Response } from "express";
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
+import { exitCode } from "process";
 dotenv.config();
 
 const app = express();
@@ -13,12 +14,21 @@ class CartModel {
 
     async createCart(userId: string) {
         try {
-            const exsitingCart = prisma.cart.findUnique({
+            if(userId === '-1'){
+                const cart = await prisma.cart.create({ 
+                    data:{
+                        
+                    }
+                });
+                return cart
+            }
+            const exsitingCart = await prisma.cart.findUnique({
                 where: {
                     userId
                 }
             })
             if (exsitingCart) {
+                
                 return exsitingCart;
             } else {
                 const cart = await prisma.cart.create({
@@ -35,38 +45,35 @@ class CartModel {
             throw new Error(`Unable to create cart ( ${(error as Error).message})`);
         }
     }
-    async addProductToCart(cartId: string, productId: string) {
-        try {
-            const cart = await prisma.cart.findUnique({
-                where: {
-                    id: cartId
-                },
-                include: {
-                    product: true
-                }
-            });
+    // async addProductToCart(cartId: string, productId: string) {
+    //     try {
+    //         const cart = await prisma.cart.findUnique({
+    //             where: {
+    //                 id: cartId
+    //             }
+    //         });
     
-            if (cart) {
-                const updatedCart = await prisma.cart.update({
-                    where: {
-                        id: cartId
-                    },
-                    data: {
-                        product: {
-                            connect: {
-                                id: productId
-                            }
-                        }
-                    }
-                });
-                return updatedCart;
-            } else {
-                throw new Error(`Cart with ID ${cartId} not found.`);
-            }
-        } catch (error) {
-            throw new Error(`Unable to add product to cart (${(error as Error).message})`);
-        }
-    }
+    //         if (cart) {
+    //             const updatedCart = await prisma.cart.update({
+    //                 where: {
+    //                     id: cartId
+    //                 },
+    //                 data: {
+    //                     product: {
+    //                         connect: {
+    //                             id: productId
+    //                         }
+    //                     }
+    //                 }
+    //             });
+    //             return updatedCart;
+    //         } else {
+    //             throw new Error(`Cart with ID ${cartId} not found.`);
+    //         }
+    //     } catch (error) {
+    //         throw new Error(`Unable to add product to cart (${(error as Error).message})`);
+    //     }
+    // }
     
     async getAllCarts() {
         try {
@@ -76,9 +83,8 @@ class CartModel {
             throw new Error(`Error when retrieving carts ${(error as Error).message}`);
         }
     }
-    async getCartById(req: Request) {
+    async getCartById(id:string) {
         try {
-            const id = req.params.id;
             const cart = await prisma.cart.findUnique({
                 where: {
                     id: id
@@ -90,28 +96,46 @@ class CartModel {
             throw new Error(`Error retrieving the cart ${(error as Error).message}`);
         }
     }
-    async removeProductById(cartId: string, productId: string) {
-        try {
-            const cart = await prisma.cart.update({
-                where: {
-                    id: cartId
-                }, data: {
-                    product:{
-                        disconnect:{ id:productId}
-                    }
-                    
-                }
-            });
+    // async getCartProducts(id:string) {
+    //     try {
+    //         const cart = await prisma.cart.findUnique({
+    //             where: {
+    //                 id: id
+    //             },
+    //             include:{
+    //                 product:true
+    //             }
+    //         });
+    //         if(cart){
+    //             const products = cart.product;
+    //             return products;
+    //         }
 
-            return cart;
-        } catch (error) {
-            throw new Error(`Error when updating carts ${(error as Error).message}`);
-        }
-    }
+    //     } catch (error) {
+    //         throw new Error(`Error retrieving cart products ${(error as Error).message}`);
+    //     }
+    // }
+    // async removeProductById(cartId: string, productId: string) {
+    //     try {
+    //         const cart = await prisma.cart.update({
+    //             where: {
+    //                 id: cartId
+    //             }, data: {
+    //                 product:{
+    //                     disconnect:{ id:productId}
+    //                 }
+                    
+    //             }
+    //         });
+
+    //         return cart;
+    //     } catch (error) {
+    //         throw new Error(`Error when updating carts ${(error as Error).message}`);
+    //     }
+    // }
     async deleteCartById(req: Request) {
         try {
             const id: string = req.params.id;
-            console.log(id);
 
             const cart = await prisma.cart.delete({
                 where: {

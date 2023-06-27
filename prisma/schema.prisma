@@ -36,7 +36,7 @@ model Product {
   imageUrl    String
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  carts       Cart[]
+  carts       CartProduct[]
   categories  Category[]
 }
 
@@ -45,11 +45,26 @@ model Cart {
   id        String    @id @default(uuid())
   user      User?     @relation(fields: [userId], references: [id])
   userId    String?    @unique
-  product   Product[]
+  cartProducts   CartProduct[]
   quantity  Int       @default(1)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
+
+// Define the Cart Product relation
+model CartProduct {
+  id        String    @id @default(uuid())
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  cartId    String
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  price     Decimal?
+  discount  Decimal?
+}
+
 
 // Define the Category model
 model Category {

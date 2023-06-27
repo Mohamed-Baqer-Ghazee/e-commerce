@@ -1,4 +1,5 @@
 import cartModel from "../models/cart.model";
+import cartProductModel from "../models/cartProduct.model";
 import express, { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import bodyParser from 'body-parser'
@@ -12,6 +13,7 @@ const JwtStrategy = require('passport-jwt').Strategy;
 
 const app = express();
 const CartModel = new cartModel();
+const CartProductModel = new cartProductModel();
 app.use(bodyParser.json())
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -35,7 +37,7 @@ async function createOrFindCart(req: Request, res: Response, next: NextFunction)
                 return cart;
 
             }else{
-                const tempCart = await CartModel.createCart(tempCartId);
+                const tempCart = await CartModel.createCart('-1');
                 sendCartToken(res,next, tempCart);
                 return tempCart;
 
@@ -48,85 +50,60 @@ async function createOrFindCart(req: Request, res: Response, next: NextFunction)
     }
 };
 
-// export const addProductToCart = async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//         const productId = req.params.id;
-//         const cart = await createOrFindCart(req, res, next);
-//         if (cart) {
-//             const cartId = cart.id;
-//             const newCart = CartModel.addProductToCart(cartId, productId);
-//             res.send("product added successfully");
-//         }else{
-//             res.send("something went wrong");
-
-//         }
-
-//     } catch (error) {
-//         next(error);
-//     }
-// };
-export const getAllCarts = async (req: Request, res: Response, next: NextFunction) => {
+export const addProductToCart = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const carts = await CartModel.getAllCarts();
-        
-        res.render("carts", { carts });
+        const productId = req.params.id;
+        const cart = await createOrFindCart(req, res, next);
+        if (cart) {
+            const cartId = cart.id;
+            const newCart = CartProductModel.addProductToCart(cartId, productId);
+            res.send("product added successfully");
+        }else{
+            res.send("something went wrong");
+
+        }
 
     } catch (error) {
         next(error);
     }
 };
-// export const getCartProducts = async (req: Request, res: Response, next: NextFunction) => {
-//     try {
+export const getCartProducts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
         
-//         const cart= await createOrFindCart(req,res,next);
-//         if(cart){
-//             const cartId = cart.id;
-//             const products = await CartModel.getCartProducts(cartId);
-//             console.log(products);
+        const cart= await createOrFindCart(req,res,next);
+        if(cart){
+            const cartId = cart.id;
+            const products = await CartProductModel.getCartProducts(cartId);
+            console.log(products);
             
-//             res.render("index", { products });
-//         }
-
-//     } catch (error) {
-//         next(error);
-//     }
-// };
-export const getCartById = async (req: Request, res: Response, next: NextFunction) => {
-
-    try {
-        const id = req.params.id;
-        const cart = await CartModel.getCartById(id);
-        if (!cart)
-            res.send("no cart found")
-        else res.render("cart", { cart });
-    } catch (error) {
-        next(error);
-    }
-};
-// export const removeProductById = async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//         const productId = req.params.id;
-//         const cart = await CartModel.removeProductById(getCartId(req, next),productId);
-
-//         if (cart)
-//             res.send(cart);
-//         else res.send("no product found");
-
-//     } catch (error) {
-//         next(error);
-//     }
-// };
-
-
-export const deleteCartById = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const cart = await CartModel.deleteCartById(req);
-        res.redirect('/');
+            res.render("index", { products });
+        }else{
+            res.send("no cart found");
+        }
 
     } catch (error) {
         next(error);
     }
 };
+export const removeProductById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const productId = req.params.id;
+        const cart = await createOrFindCart(req,res,next);
+        if(cart){
+            const id = cart.id
+            const newCart = await CartProductModel.removeProductById(id,productId);
+    
+            if (newCart)
+                res.send(newCart);
+
+        }
+        else res.send("no product found");
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 const maxAge = 30 * 24 * 60 * 60;
 function sendCartToken(res: Response,next:NextFunction, cart: any) {
