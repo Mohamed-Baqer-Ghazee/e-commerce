@@ -12,111 +12,132 @@ app.use(express.urlencoded({ extended: true }));
 
 class CartProductModel {
 
-    async addProductToCart(cartId: string, productId: string) {
-        try {
-            const cartProduct = await prisma.cartProduct.create({
-                data: {
-                    cart: {
-                        connect: { id: cartId }
-                    },
-                    product: {
-                        connect: { id: productId }
-                    },
-                    quantity: 1
-                }
-            });
-
-            return cartProduct;
-        } catch (error) {
-            throw new Error(`Unable to add product to cart (${(error as Error).message})`);
+  async addProductToCart(cartId: string, productId: string) {
+    try {
+      const id = await this.getCartProductId(cartId,productId);
+      if(id !== '-1') {
+        const cartProduct = await prisma.cartProduct.update({
+          where: { id }, data: {
+            quantity: { increment: 1 }
+          }
+        });
+        return cartProduct;
+      }
+      const cartProduct = await prisma.cartProduct.create({
+        data: {
+          cart: {
+            connect: { id: cartId }
+          },
+          product: {
+            connect: { id: productId }
+          }
         }
-    }
+      });
 
-    async getCartProductById(id: string) {
-        try {
-            const cartProduct = await prisma.cartProduct.findUnique({
-                where: {
-                    id
-                }
-            });
-            return cartProduct;
-        } catch (error) {
-            throw new Error(`Error retrieving the cart (${(error as Error).message})`);
+      return cartProduct;
+    } catch (error) {
+      throw new Error(`Unable to add product to cart (${(error as Error).message})`);
+    }
+  }
+
+  async getCartProductById(id: string) {
+    try {
+      const cartProduct = await prisma.cartProduct.findUnique({
+        where: {
+          id
         }
+      });
+      return cartProduct;
+    } catch (error) {
+      throw new Error(`Error retrieving the cart (${(error as Error).message})`);
     }
+  }
 
-    async getCartProducts(id: string) {
-        try {
-          const cart = await prisma.cart.findUnique({
-            where: {
-              id
-            },
+  async getCartProducts(id: string) {
+    try {
+      const cart = await prisma.cart.findUnique({
+        where: {
+          id
+        },
+        include: {
+          cartProducts: {
             include: {
-              cartProducts: {
-                include: {
-                  product: true
-                }
-              }
+              product: true
+            }
+          }
+        }
+      });
+
+      if (cart) {
+        const cartProducts = cart.cartProducts;
+        return cartProducts;
+      }
+    } catch (error) {
+      throw new Error(`Error retrieving cart products (${(error as Error).message})`);
+    }
+  }
+
+  async removeProductById(cartId: string, productId: string) {
+    try {
+      const id = await this.getCartProductId(cartId,productId);
+      if(id !== '-1') {
+        const cart = await prisma.cartProduct.findUnique({
+          where: {
+            id
+          },
+          include: {
+                product: true
+          }
+        });
+        if(cart && cart.quantity > 1){
+          const newCartProduct = await prisma.cartProduct.update({
+            where:{
+              id
+            },data:{
+              quantity:{decrement:1}
             }
           });
-      
-          if (cart) {
-            const cartProducts = cart.cartProducts;
-            return cartProducts;
-          }
-        } catch (error) {
-          throw new Error(`Error retrieving cart products (${(error as Error).message})`);
-        }
-      }
-      
-    async removeProductById(cartId: string, productId: string) {
-        try {
-          const cartProduct = await prisma.cartProduct.findFirst({
-            where: {
-              AND: [
-                { cartId: cartId },
-                { productId: productId },
-              ],
-            },
-          });
-          if(cartProduct){
-            const id = cartProduct.id;
-            const newCartProduct = await prisma.cartProduct.delete({
-              where: {
-                id
-              },
-            });
-            
-          return cartProduct;
-          }else{
-            throw new Error(`No cart found with that id`);
-          }
           
-
-        } catch (error) {
-          throw new Error(`Error when removing product from cartProduct (${(error as Error).message})`);
+          return newCartProduct;
         }
+        const newCartProduct = await prisma.cartProduct.delete({
+          where: {
+            id
+          },
+        });
+
+        return newCartProduct;
+      } else {
+        
+        return 0;
       }
-      
 
-    async deleteCartProductById(req: Request) {
-        try {
-            const id: string = req.params.id;
 
-            const cart = await prisma.cartProduct.delete({
-                where: {
-                    id
-                }
-            });
-
-            if (!cart)
-                throw new Error(`No cartProduct found with that id`);
-
-            return cart;
-        } catch (error) {
-            throw new Error(`Error deleting the cartProduct (${(error as Error).message})`);
-        }
+    } catch (error) {
+      throw new Error(`Error when removing product from cartProduct (${(error as Error).message})`);
     }
+  }
+  
+  async getCartProductId(cartId:string, productId:string) {
+      try{
+      const cartProduct = await prisma.cartProduct.findFirst({
+        where: {
+          AND: [
+            { cartId: cartId },
+            { productId: productId },
+          ],
+        },
+      });
+      if (cartProduct) {
+        return cartProduct.id;
+      }
+      else{
+        return '-1';
+      }
+      }catch(error){
+        throw new Error(`Error when finding cartProduct (${(error as Error).message})`);
+      }
+  }
 }
 
 export default CartProductModel;

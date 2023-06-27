@@ -19,7 +19,7 @@ passport.use(JwtStrategy);
 app.use(passport.initialize());
 
 
-async function createOrFindCart(req: Request, res: Response, next: NextFunction) {
+export async function findOrCreateCart(req: Request, res: Response, next: NextFunction) {
     try {
         const userId = getUserId(req, next);
         const productId = req.params.id;
@@ -51,7 +51,7 @@ async function createOrFindCart(req: Request, res: Response, next: NextFunction)
 // export const addProductToCart = async (req: Request, res: Response, next: NextFunction) => {
 //     try {
 //         const productId = req.params.id;
-//         const cart = await createOrFindCart(req, res, next);
+//         const cart = await findOrCreateCart(req, res, next);
 //         if (cart) {
 //             const cartId = cart.id;
 //             const newCart = CartModel.addProductToCart(cartId, productId);
@@ -78,7 +78,7 @@ export const getAllCarts = async (req: Request, res: Response, next: NextFunctio
 // export const getCartProducts = async (req: Request, res: Response, next: NextFunction) => {
 //     try {
         
-//         const cart= await createOrFindCart(req,res,next);
+//         const cart= await findOrCreateCart(req,res,next);
 //         if(cart){
 //             const cartId = cart.id;
 //             const products = await CartModel.getCartProducts(cartId);

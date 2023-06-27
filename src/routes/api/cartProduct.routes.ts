@@ -22,6 +22,6 @@ router.route('/')
 
 router.route('/:id')
     .put(controllers.addProductToCart)
-    .delete(authenticate, controllers.removeProductById);
+    .delete(controllers.removeProductById);
 
 export default router;

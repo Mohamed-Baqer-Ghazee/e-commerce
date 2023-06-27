@@ -24,47 +24,44 @@ model User {
   orders    Order[]
 }
 
-
 // Define the Product model
 model Product {
-  id          String     @id @default(uuid())
-  user        User       @relation(fields: [userId], references: [id])
+  id          String        @id @default(uuid())
+  user        User          @relation(fields: [userId], references: [id])
   userId      String
   name        String
   description String?
   price       Float
   imageUrl    String
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   carts       CartProduct[]
   categories  Category[]
 }
 
 // Define the Cart model
 model Cart {
-  id        String    @id @default(uuid())
-  user      User?     @relation(fields: [userId], references: [id])
-  userId    String?    @unique
-  cartProducts   CartProduct[]
-  quantity  Int       @default(1)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id           String        @id @default(uuid())
+  user         User?         @relation(fields: [userId], references: [id])
+  userId       String?       @unique
+  order      Order?     @relation(fields: [orderId], references: [id])
+  orderId    String?    @unique
+  cartProducts CartProduct[]  
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 // Define the Cart Product relation
 model CartProduct {
-  id        String    @id @default(uuid())
+  id        String   @id @default(uuid())
   cart      Cart     @relation(fields: [cartId], references: [id])
   cartId    String
   product   Product  @relation(fields: [productId], references: [id])
   productId String
-  quantity  Int
+  quantity  Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  price     Decimal?
-  discount  Decimal?
 }
-
 
 // Define the Category model
 model Category {
@@ -79,6 +76,7 @@ model Order {
   user      User     @relation(fields: [userId], references: [id])
   userId    String   @unique
   payment   Float
+  cart Cart?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 }
