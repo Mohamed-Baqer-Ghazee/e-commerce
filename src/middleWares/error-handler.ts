@@ -14,7 +14,6 @@ import { Request, Response, NextFunction } from 'express';
       return res.status(400).json({ error: err.name });
     }
 
-
     // For any other errors, return a generic error response
     return res.status(500).json({ error: 'Internal Server Error' });
   }

@@ -18,10 +18,10 @@ router.use(cookieParser());
 const authenticate = passport.authenticate('jwt', { session: false });
 
 router.route('/')
-    .get(controllers.getAllCarts)
+    .get(authenticate,controllers.getAllCarts)
 
 router.route('/:id')
-    .get(controllers.getCartById)
+    .get(authenticate,controllers.getCartById)
     .delete(authenticate, controllers.deleteCartById);
 
 export default router;

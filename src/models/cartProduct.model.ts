@@ -1,4 +1,4 @@
-import express, { Router, Request, Response } from "express";
+import express from "express";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt"
 import dotenv from "dotenv"
@@ -76,7 +76,24 @@ class CartProductModel {
       throw new Error(`Error retrieving cart products (${(error as Error).message})`);
     }
   }
-
+  async getPaymentAmount(id: string) {
+    try {
+      const cartProducts = await this.getCartProducts(id);
+      let paymentAmount = 0;
+  
+      if (cartProducts) {
+        for (const cartProduct of cartProducts) {
+          paymentAmount += cartProduct.product.price * cartProduct.quantity;
+        }
+      }
+  
+      console.log('Payment Amount:', paymentAmount);
+      return paymentAmount;
+    } catch (error) {
+      throw new Error(`Error retrieving cart products (${(error as Error).message})`);
+    }
+  }
+  
   async removeProductById(cartId: string, productId: string) {
     try {
       const id = await this.getCartProductId(cartId,productId);

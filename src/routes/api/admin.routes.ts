@@ -17,9 +17,9 @@ router.use(cookieParser());
 
 const authenticate = passport.authenticate('jwt', { session: false });
 
-router.route('/')
-    .get(authenticate, controllers.getAllUsers)
-router.route('/:id')
+router.route('/users/getusers')
+    .get(authenticate, controllers.getAllUsers);
+router.route('/users/:id')
     .get(authenticate, controllers.getUserById)
     .put(authenticate, controllers.updateUserRole)
     .patch(authenticate, controllers.updateUserById)

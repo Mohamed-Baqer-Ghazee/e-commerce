@@ -20,7 +20,7 @@ passport.use(JwtStrategy);
 app.use(passport.initialize());
 
 
-async function findOrCreateCart(req: Request, res: Response, next: NextFunction) {
+export async function findOrCreateCart(req: Request, res: Response, next: NextFunction) {
     try {
         const userId = getUserId(req, next);
         const productId = req.params.id;
@@ -95,6 +95,23 @@ export const removeProductById = async (req: Request, res: Response, next: NextF
                 res.send("product removed successfully");
             else
                 res.send("product decremented successfully");
+        }
+        else res.send("no product found");
+
+    } catch (error) {
+        next(error);
+    }
+};
+export const getPaymentAmount = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const cart = await findOrCreateCart(req, res, next);
+        if (cart) {
+            const id = cart.id
+            const paymentAmount = await CartProductModel.getPaymentAmount(id);
+            console.log(paymentAmount);
+            
+            res.send(`payment amount: ${paymentAmount}`);
+            
         }
         else res.send("no product found");
 

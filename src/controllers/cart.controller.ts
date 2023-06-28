@@ -21,7 +21,7 @@ app.use(passport.initialize());
 export const getAllCarts = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const carts = await CartModel.getAllCarts();
-        
+
         res.render("carts", { carts });
 
     } catch (error) {
@@ -44,8 +44,9 @@ export const getCartById = async (req: Request, res: Response, next: NextFunctio
 
 export const deleteCartById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const cart = await CartModel.deleteCartById(req);
-        res.redirect("/");
+        const id = req.params.id;
+        const cart = await CartModel.deleteCartById(id);
+        res.send("cart deleted successfully");
 
     } catch (error) {
         next(error);
@@ -53,7 +54,7 @@ export const deleteCartById = async (req: Request, res: Response, next: NextFunc
 };
 
 const maxAge = 30 * 24 * 60 * 60;
-function sendCartToken(res: Response,next:NextFunction, cart: any) {
+function sendCartToken(res: Response, next: NextFunction, cart: any) {
     try {
         const cartToken = jwt.sign({ cart }, process.env.token_secret as unknown as string, { expiresIn: maxAge });
         console.log(cartToken);
