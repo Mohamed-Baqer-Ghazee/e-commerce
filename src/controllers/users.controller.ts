@@ -52,7 +52,6 @@ export const getSignedUser = async (req: Request, res: Response, next: NextFunct
             }
             // Successful authentication
 
-            console.log("auth successful");
             res.render("user", { user });
 
         })(req, res, next);
@@ -99,7 +98,6 @@ export const updateCurrentUser = async (req: Request, res: Response, next: NextF
         if(userId){
             const user = await userModel.updateCurrentUser(userId, req);
             if (user && oldEmail !== user.email ) {
-                console.log("changed email");
                 res.cookie("jwt", "", { httpOnly: true, maxAge: 1 });
                 res.redirect("/");
             } else if (user)
@@ -117,15 +115,15 @@ export const signIn = async (req: Request, res: Response, next: NextFunction) =>
     try {
         if (getUserId(req, next)) {
             res.send("User is already signed in");
-            return;
         }
         else {
             const { email, password } = req.body;
             const user = await userModel.signIn(email, password);
             if (!user) {
-                return res.render("failed");
+                res.send("failed to log in");
+            }else{
+                sendToken(res, user);
             }
-            sendToken(res, user);
         }
     } catch (error) {
         next(error)
@@ -134,13 +132,10 @@ export const signIn = async (req: Request, res: Response, next: NextFunction) =>
 export const signOut = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (req.isAuthenticated()) {
-            console.log("signed out");
-
             res.cookie("jwt", "", { httpOnly: true, maxAge: 1 });
             res.redirect("/");
         }
         else {
-            console.log("user not signed in");
             res.send("user not signed in");
 
         }
@@ -152,7 +147,6 @@ export const signOut = async (req: Request, res: Response, next: NextFunction) =
 
 function sendToken(res: Response, user: any) {
     const token = jwt.sign({ user }, process.env.token_secret as unknown as string, { expiresIn: maxAge });
-    console.log(token);
     res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
     res.redirect("/");
 
